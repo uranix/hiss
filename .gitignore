@@ -1,0 +1,10 @@
+*.log
+*.aux
+
+*.o
+
+*.png
+*.gv
+*.svg
+*.avi
+tests/test_*
