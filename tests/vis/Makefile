@@ -1,9 +1,9 @@
 CXX=g++
-CFLAGS=-O3 -g -I../src
+CFLAGS=-O3 -g -I../../src
 
 all: test_coloring
 
-test_coloring : driver.cpp ../src/coloring.cpp
+test_coloring : driver.cpp ../../src/coloring.cpp
 	$(CXX) $(CFLAGS) -o $@ $^
 
 graphs : 
