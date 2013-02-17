@@ -17,7 +17,7 @@ struct color {
 	static color uncolored;
 };
 
-#if DPRINT
+#ifdef DPRINT
 #include <stdio.h>
 #define __hiss_dprintf(fmt, args...) fprintf(stderr, fmt, ##args)
 #else

@@ -5,54 +5,59 @@
 
 #include <vector>
 #include <set>
+#include <cassert>
 
 namespace hiss {
 
-struct portrait {
+class portrait {
 	MPI_impl *mpi;
 
-	index nSelf;
-	std::vector<index> nGhost; 
+	std::vector<std::pair<int, index> > map;
 
-	std::vector<std::vector<index> > map;
-	std::vector<std::vector<index> > rmap;
+	std::vector<std::set<index> > pattern; /* may have empty rows */
+
+	std::vector<std::vector<index> > external;
+	std::vector<std::vector<index> > exported;
 
 	std::vector<std::set<index> > cols;
-	
-	portrait(MPI_impl *_mpi, index _nSelf, const std::vector<index> &_nGhost) :
-		nGhost(_mpi->size() + 1),
-		map(_mpi->size())
-	{
-		mpi = _mpi;
-		nSelf = _nSelf;
-		nGhost[0] = 0;
-		for (int i = 0; i < mpi->size(); i++) {
-			nGhost[i+1] = nGhost[i] + _nGhost[i];
-			map[i].reserve(_nGhost[i]);
+
+	bool finalized;
+
+	void add_mapping(int i, int rank, int ri) {
+		if (map[i].first == -1) 
+			map[i] = std::pair<int, index>(rank, ri);
+		else {
+			assert(map[i] == std::pair<int, index>(rank, ri));
 		}
-		cols = new index*[nSelf];
 	}
 
-	void addLocal(index i, index j) {
-		assert(i < nSelf);
-		assert(j < nSelf);
-		
+
+public:
+
+	portrait(MPI_impl *_mpi, index n_cols) :
+		map(n_cols, std::pair<int, index>(-1, 0)),
+		pattern(n_cols),
+		external(_mpi->size()),
+		exported(_mpi->size()),
+		mpi(_mpi),
+		finalized(false)
+	{
+	}
+
+	void add_normal(index i, index j) {
+		assert(!finalized);
 		if (i == j)
 			return; /* Aztec compatibility */
-
-		cols[i].insert(j);
+		add_mapping(i, mpi->rank(), i);
+		add_mapping(j, mpi->rank(), j);
+		pattern[i].insert(j);
 	}
 
-	void addRemote(index i, index j, int q, index rj) {
-		assert(i < nSelf);
-		assert(q < mpi->size());
-		index cj = nGhost[q] + j;
-		assert(cj < nGhost[q+1]);
-
-		add_set(cols[i], rowsz[i], cj);
-		/* check q = rank is deferred to setVal. Otherwise, is will be 
-		impossible to set self-ghosts values only by (i,j) index pair */
-		map[q][j] = rj;
+	void add_ghost(index i, index j, int q, index rj) {
+		assert(!finalized);
+		add_mapping(i, mpi->rank(), i);
+		add_mapping(j, q, rj);
+		pattern[i].insert(j);
 	}
 
 	void finalizePortrait() {
