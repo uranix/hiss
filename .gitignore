@@ -7,4 +7,4 @@
 *.gv
 *.svg
 *.avi
-tests/test_*
+tests/*/test_*
