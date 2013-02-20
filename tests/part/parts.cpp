@@ -68,11 +68,26 @@ int main() {
 	for (int i = 0; i < p.matrix.rowstart.size(); i++)
 		cout << p.matrix.rowstart[i] << ", ";
 	cout << endl << "cols: ";
-	for (int i = 0; i < p.matrix.cols.size(); i++)
+	int row = 0;
+	for (int i = 0; i < p.matrix.cols.size(); i++) {
+		while (i == p.matrix.rowstart[row]) {
+			cout << endl;
+			row++;
+		}
 		cout << p.matrix.cols[i] << ", ";
+	}
+	cout << endl << "brd_start: ";
+	for (int i = 0; i < p.brd_start.size(); i++)
+		cout << p.brd_start[i] << ", ";
 	cout << endl << "brd_rows: ";
-	for (int i = 0; i < p.brd_rows.size(); i++)
+	row = 0;
+	for (int i = 0; i < p.brd_rows.size(); i++) {
+		while (i == p.brd_start[row]) {
+			cout << endl;
+			row++;
+		}
 		cout << p.brd_rows[i] << ", ";
+	}
 	cout << endl;
 	
 	if (ipc.rank() < ipc.size() - 1)

@@ -41,7 +41,8 @@ class portrait {
 
 public:
 	csr matrix;
-	std::vector<index> brd_rows; /* matrix(brd(:), :) */
+	std::vector<index> brd_rows;
+	std::vector<index> brd_start;
 
 	portrait(sparsecomm &sc, index n_cols);
 	void add_normal(index i, index j);

@@ -1,6 +1,8 @@
 #include "portrait.h"
 #include <cassert>
 
+#include <iostream>
+
 namespace hiss {
 
 void portrait::add_mapping(int i, int rank, int ri) {
@@ -107,7 +109,7 @@ void portrait::finalize_portrait() {
 		for (std::set<index>::const_iterator j = pattern[i].begin(); j != pattern[i].end(); ++j) {
 			if (reorder[*j] >= cstart.back()) {
 				if (map[*j].first == myrank) {/* self-ghost */
-					row.insert(map[*j].second);
+					row.insert(reorder[map[*j].second]);
 					continue;
 				}
 				assert(false /* what else could it be*/);
@@ -117,11 +119,14 @@ void portrait::finalize_portrait() {
 		matrix.add(row);
 	}
 
-	for (int k = 0; k < sc.ipc.size(); k++) 
+	brd_start.push_back(0);
+	for (int k = 0; k < sc.ipc.size(); k++) {
 		for (int m = 0; m < brd[k].size(); m++) {
 			int i = brd[k][m];
 			brd_rows.push_back(reorder[i]);
 		}
+		brd_start.push_back(brd_start.back() + brd[k].size());
+	}
 }
 
 };
