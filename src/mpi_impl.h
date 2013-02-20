@@ -17,8 +17,8 @@ public:
 	virtual void send(int *buf, int count, int to);
 	virtual void recv(int *buf, int count, int from);
 
-	virtual int probe_size(int from);
 	virtual void sendrecv(double *sbuf, int scnt, int to, double *rbuf, int rcnt, int from);
+	virtual void sendrecv(int *sbuf, int scnt, int to, int *rbuf, int rcnt, int from);
 	virtual void sendrecv(index *sbuf, int scnt, int to, index *rbuf, int rcnt, int from);
 
 	virtual ~MPI_impl();

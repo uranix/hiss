@@ -5,68 +5,51 @@
 
 #include <vector>
 #include <set>
-#include <cassert>
+
+#include "sparsecomm.h"
 
 namespace hiss {
 
-class portrait {
-	MPI_impl *mpi;
+struct csr {
+	std::vector<index> rowstart;
+	std::vector<index> cols;
+	csr() {
+		rowstart.push_back(0);
+	}
+	void add(const std::set<index> &row) {
+		rowstart.push_back(rowstart.back() + row.size());
+		cols.insert(cols.end(), row.begin(), row.end());
+	}
+};
 
-	std::vector<std::pair<int, index> > map;
+class portrait {
+	sparsecomm &sc;
+
+	std::vector<std::pair<int, index> > map; /* local index -> (r, local index in domain r) */
 
 	std::vector<std::set<index> > pattern; /* may have empty rows */
 
-	std::vector<std::vector<index> > external;
-	std::vector<std::vector<index> > exported;
+	std::vector<std::vector<index> > ext; 
+	std::vector<std::vector<index> > brd;
 
-	std::vector<std::set<index> > cols;
+	std::vector<index> reorder;
 
 	bool finalized;
 
-	void add_mapping(int i, int rank, int ri) {
-		if (map[i].first == -1) 
-			map[i] = std::pair<int, index>(rank, ri);
-		else {
-			assert(map[i] == std::pair<int, index>(rank, ri));
-		}
-	}
-
+	void add_mapping(int i, int rank, int ri);
+	void exchange_ext();
 
 public:
+	csr matrix;
+	std::vector<index> brd_rows; /* matrix(brd(:), :) */
 
-	portrait(MPI_impl *_mpi, index n_cols) :
-		map(n_cols, std::pair<int, index>(-1, 0)),
-		pattern(n_cols),
-		external(_mpi->size()),
-		exported(_mpi->size()),
-		mpi(_mpi),
-		finalized(false)
-	{
-	}
-
-	void add_normal(index i, index j) {
-		assert(!finalized);
-		if (i == j)
-			return; /* Aztec compatibility */
-		add_mapping(i, mpi->rank(), i);
-		add_mapping(j, mpi->rank(), j);
-		pattern[i].insert(j);
-	}
-
-	void add_ghost(index i, index j, int q, index rj) {
-		assert(!finalized);
-		add_mapping(i, mpi->rank(), i);
-		add_mapping(j, q, rj);
-		pattern[i].insert(j);
-	}
-
-	void finalizePortrait() {
-		
-	}
-};
+	portrait(sparsecomm &sc, index n_cols);
+	void add_normal(index i, index j);
+	void add_ghost(index i, index j, int q, index rj);
+	void finalize_portrait();
 
 };
 
-
+};
 
 #endif 

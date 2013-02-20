@@ -54,22 +54,22 @@ void MPI_impl::recv(int *buf, int cnt, int from) {
 	(void) MPI::COMM_WORLD.Recv(buf, cnt, MPI::INT, from, tag);
 }
 
-int MPI_impl::probe_size(int from) {
-	MPI::Status status;
-	(void) MPI::COMM_WORLD.Probe(from, tag, status);
-	return status.Get_elements(MPI::BYTE);
+void MPI_impl::sendrecv(double *sbuf, int scnt, int to, double *rbuf, int rcnt, int from) {
+	(void) MPI::COMM_WORLD.Sendrecv(
+		sbuf, scnt, MPI::DOUBLE, to, tag,
+		rbuf, rcnt, MPI::DOUBLE, from, tag);
+}
+
+void MPI_impl::sendrecv(int *sbuf, int scnt, int to, int *rbuf, int rcnt, int from) {
+	(void) MPI::COMM_WORLD.Sendrecv(
+		sbuf, scnt, MPI::INT, to, tag,
+		rbuf, rcnt, MPI::INT, from, tag);
 }
 
 void MPI_impl::sendrecv(index *sbuf, int scnt, int to, index *rbuf, int rcnt, int from) {
 	(void) MPI::COMM_WORLD.Sendrecv(
 		sbuf, scnt, MPI::UNSIGNED_LONG, to, tag,
 		rbuf, rcnt, MPI::UNSIGNED_LONG, from, tag);
-}
-
-void MPI_impl::sendrecv(double *sbuf, int scnt, int to, double *rbuf, int rcnt, int from) {
-	(void) MPI::COMM_WORLD.Sendrecv(
-		sbuf, scnt, MPI::DOUBLE, to, tag,
-		rbuf, rcnt, MPI::DOUBLE, from, tag);
 }
 
 };

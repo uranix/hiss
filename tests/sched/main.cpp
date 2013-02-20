@@ -9,7 +9,7 @@ using namespace hiss;
 
 int main() {
 	MPI_impl mpi;
-	sparsecomm sc(&mpi);
+	sparsecomm sc(mpi);
 	cout << "I'm " << mpi.rank() << " of " << mpi.size() << " using device " << mpi.device() << endl;
 	srand(mpi.rank() + 100);
 
@@ -27,8 +27,13 @@ int main() {
 	cout << flush;
 
 	for (int color = 0; color < sc.rounds.size(); color++) {
-		if (sc.rounds[color] >= 0)
-			cout << mpi.rank() << " communicating with " << sc.rounds[color] << endl;
+		int to = sc.rounds[color];
+		if (to >= 0) {
+			double sbuf[10];
+			double rbuf[10];
+			cout << mpi.rank() << " communicating with " << to << endl;
+			mpi.sendrecv(sbuf, 10, to, rbuf, 10, to);
+		}
 		mpi.barrier();
 		if (!mpi.rank())
 			cout << " ---------------- New round ------------------ " << endl;
